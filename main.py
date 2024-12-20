@@ -52,13 +52,11 @@ def get_db():
 
 @app.post("/login")
 async def login(user_login: UserLogin, db: Session = Depends(get_db)):
-    # Check user login against the database
     db_user = db.query(User).filter(User.login == user_login.login, User.password == user_login.password).first()
 
     if db_user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
-    # Return user information except password
     return {
         "id": db_user.id,
         "name": db_user.name,
@@ -77,7 +75,6 @@ async def login(user_login: UserLogin, db: Session = Depends(get_db)):
 async def create_repair(repair: RepairCreate, db: Session = Depends(get_db)):
 
     new_repair = Repair(
-
         description_breakdown=repair.description_breakdown,
         date_and_time_repair=repair.date_and_time_repair,
         address_point_repair=repair.address_point_repair,
@@ -94,7 +91,6 @@ async def create_repair(repair: RepairCreate, db: Session = Depends(get_db)):
 
 @app.post("/reports/")
 async def create_report(report: ReportCreate, db: Session = Depends(get_db)):
-
     new_report = Report(
         point_departure=report.point_departure,
         type_point_departure=report.type_point_departure,
@@ -110,7 +106,6 @@ async def create_report(report: ReportCreate, db: Session = Depends(get_db)):
         variety_wood_type=report.variety_wood_type,
         user_id=report.user_id
     )
-
     try:
         db.add(new_report)
         db.commit()
