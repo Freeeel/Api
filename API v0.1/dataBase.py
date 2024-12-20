@@ -87,31 +87,14 @@ class Report(Base):
     length_wood = Column(Integer, nullable=False)
     volume_wood = Column(Float, nullable=False)
     report_date_time = Column(Date, nullable=False)
-    assortment_wood_type_id = Column(Integer, ForeignKey('assortment_wood_types.id'), nullable=False)
-    variety_wood_type_id = Column(Integer, ForeignKey('variety_wood_types.id'), nullable=False)
+    assortment_wood_type = Column(String(50), nullable=False)
+    variety_wood_type = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    assortment_wood_type = relationship("AssortmentWoodType", back_populates="reports")
-    variety_wood_type = relationship("VarietyWoodType", back_populates="reports")
     user = relationship("User", back_populates="reports")
 
 
-class AssortmentWoodType(Base):
-    __tablename__ = 'assortment_wood_types'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name_type_wood = Column(String(50), nullable=False)
-
-    reports = relationship("Report", back_populates="assortment_wood_type")
-
-
-class VarietyWoodType(Base):
-    __tablename__ = 'variety_wood_types'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-
-    reports = relationship("Report", back_populates="variety_wood_type")
 
 class Name(Base):
     __tablename__ = 'name'
