@@ -108,6 +108,8 @@ async def create_repair(repair: RepairCreate, db: Session = Depends(get_db)):
 
 @app.post("/reports/")
 async def create_report(report: ReportCreate, db: Session = Depends(get_db)):
+    report_date_time = datetime.strptime(report.report_date_time, '%d/%m/%Y').date()
+
     new_report = Report(
         point_departure=report.point_departure,
         type_point_departure=report.type_point_departure,
@@ -118,7 +120,7 @@ async def create_report(report: ReportCreate, db: Session = Depends(get_db)):
         view_wood=report.view_wood,
         length_wood=report.length_wood,
         volume_wood=report.volume_wood,
-        report_date_time=report.report_date_time,
+        report_date_time=report_date_time,
         assortment_wood_type=report.assortment_wood_type,
         variety_wood_type=report.variety_wood_type,
         user_id=report.user_id
