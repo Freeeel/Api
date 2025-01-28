@@ -7,6 +7,7 @@ from datetime import datetime
 app = FastAPI()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+#python -m  uvicorn main:app --reload --host 172.20.10.11
 
 class UserLogin(BaseModel):
     login: str
@@ -88,6 +89,29 @@ async def login(user_login: UserLogin, db: Session = Depends(get_db)):
     }
 
 
+@app.get("/getuser/{user_id}")
+async def get_user(user_id: int, db: Session = Depends(get_db)):
+    # Получаем пользователя по user_id
+    db_user = db.query(User).filter(User.id == user_id).first()
+
+    # Если пользователь не найден, выбрасываем ошибку
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Возвращаем данные пользователя
+    return {
+        "id": db_user.id,  # Здесь вы ранее использовали db_user, что вызвало ошибку
+        "name": db_user.name,
+        "surname": db_user.surname,
+        "patronymic": db_user.patronymic,
+        "phone": db_user.phone,
+        "date_of_birthday": db_user.date_of_birthday,
+        "address_residential": db_user.address_residential,
+        "bank_account_number": db_user.bank_account_number,
+        "role_id": db_user.role_id,
+    }
+
+
 @app.post("/repairs/")
 async def create_repair(repair: RepairCreate, db: Session = Depends(get_db)):
 
@@ -165,9 +189,7 @@ async def get_user_car(user_id: int, db: Session = Depends(get_db)):
     if not user_cars:
         raise HTTPException(status_code=404, detail="Нет привязанных автомобилей для этого пользователя")
 
-    # Если вам нужен только один автомобиль, вы можете изменить логику
-    # Например, вернуть первый найденный автомобиль
-    car = user_cars[0]  # Если автомобилей несколько, нужно реализовать выбор нужного.
+    car = user_cars[0]
     car_details = {
         "car_id": car.id,
         "state_number": car.car_park.state_number,
@@ -180,13 +202,11 @@ async def get_user_car(user_id: int, db: Session = Depends(get_db)):
 
 @app.get("/reports/user/{user_id}", response_model=list[ReportResponse])
 async def get_reports_by_user(user_id: int, db: Session = Depends(get_db)):
-    """Получение отчетов для конкретного пользователя"""
     reports = db.query(Report).filter(Report.user_id == user_id).all()
 
     if not reports:
         raise HTTPException(status_code=404, detail="Нет отчетов для данного пользователя")
 
-    # Преобразование report_date_time в строку
     return [{
         **report.__dict__,
         "report_date_time": report.report_date_time.isoformat()  # Преобразуем дату в строку
